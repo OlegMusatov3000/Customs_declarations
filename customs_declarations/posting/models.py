@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from api.v1.core import keygen, slug_keygen
+from api.v1.utils import keygen, slug_keygen
 
 
 class Seller(AbstractUser):

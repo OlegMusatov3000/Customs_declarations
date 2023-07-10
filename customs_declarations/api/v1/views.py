@@ -1,22 +1,21 @@
 import datetime as dt
-from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, mixins, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 
+from posting.models import (
+    Seller,
+    Etgb_of_posting,
+)
 from .authentication import ClientIdApiKeyAuthentication
 from .serializers import (
     SignUpSerializer,
     AuthSerializer,
     Etgb_of_postingSerializer,
 )
-from customs_declarations.settings import EMAIL_API
-from posting.models import (
-    Seller,
-    Etgb_of_posting,
-)
+from .utils import send_confirmation_code
 
 
 class SignUpViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
@@ -39,13 +38,7 @@ class SignUpViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
             )
         user, _ = Seller.objects.get_or_create(**serializer.data)
         confirmation_code = default_token_generator.make_token(user)
-        send_mail(
-            subject='Код подтверждения',
-            message=f'ваш "confirmation_code": {confirmation_code}',
-            from_email=EMAIL_API,
-            recipient_list=(user.email,),
-            fail_silently=False,
-        )
+        send_confirmation_code(user.email, confirmation_code)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
