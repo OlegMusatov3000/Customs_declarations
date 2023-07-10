@@ -1,16 +1,37 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-User = get_user_model()
+from api.v1.core import keygen, slug_keygen
+
+
+class Seller(AbstractUser):
+    client_id = models.CharField(
+        max_length=256,
+        unique=True,
+        default=keygen()
+    )
+    api_key = models.CharField(
+        max_length=256,
+        unique=True,
+        default=slug_keygen()
+    )
 
 
 class Etgb_of_posting(models.Model):
-    posting_number = models.TextField(unique=True, max_length=None)
+    posting_number = models.TextField(
+        unique=True,
+        default=keygen())
     etgb = models.ForeignKey(
         'Etgb',
         on_delete=models.CASCADE,
         related_name='etgb',
         verbose_name='Декларация'
+    )
+    seller = models.ForeignKey(
+        Seller,
+        on_delete=models.CASCADE,
+        related_name='seller',
+        verbose_name='Владелец деклорации',
     )
 
     class Meta:
@@ -25,17 +46,21 @@ class Etgb_of_posting(models.Model):
         ]
 
     def __str__(self):
-        return self.posting_number
+        return f'{self.posting_number} {self.etgb}'
 
 
 class Etgb(models.Model):
-    number = models.TextField(unique=True)
+    number = models.TextField(
+        unique=True,
+        default=keygen())
     date = models.DateTimeField(
         verbose_name='Дата создания',
         auto_now_add=True,
         db_index=True,
     )
-    url = models.SlugField(unique=True)
+    url = models.SlugField(
+        unique=True,
+        default=slug_keygen())
 
     class Meta:
         verbose_name = 'Таможенная декларация'
@@ -49,4 +74,4 @@ class Etgb(models.Model):
         ]
 
     def __str__(self):
-        return self.number
+        return f'{self.date}'
