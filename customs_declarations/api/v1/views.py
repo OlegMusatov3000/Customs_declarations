@@ -15,7 +15,7 @@ from .serializers import (
     AuthSerializer,
     Etgb_of_postingSerializer,
 )
-from .utils import send_confirmation_code
+from .utils import send_confirmation_code, send_data_to_clickhouse
 
 
 class SignUpViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
@@ -110,7 +110,8 @@ class GetEtgbViewSet(
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
+            send_data_to_clickhouse(queryset, *args)
             return self.get_paginated_response(serializer.data)
-
+        send_data_to_clickhouse(queryset, *args)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)

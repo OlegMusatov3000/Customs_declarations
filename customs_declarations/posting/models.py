@@ -5,6 +5,7 @@ from api.v1.utils import keygen, slug_keygen
 
 
 class Seller(AbstractUser):
+    """Кастомная модель пользователя "Seller"."""
     client_id = models.CharField(
         max_length=256,
         unique=True,
@@ -18,6 +19,7 @@ class Seller(AbstractUser):
 
 
 class Etgb_of_posting(models.Model):
+    """Модель таможенной декларации посылки."""
     posting_number = models.TextField(
         unique=True,
         default=keygen())
@@ -46,10 +48,11 @@ class Etgb_of_posting(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.posting_number} {self.etgb}'
+        return f"('{self.posting_number}', {self.etgb}), "
 
 
 class Etgb(models.Model):
+    """Модель таможенной декларации."""
     number = models.TextField(
         unique=True,
         default=keygen())
@@ -68,10 +71,10 @@ class Etgb(models.Model):
         ordering = ['id']
         constraints = [
             models.UniqueConstraint(
-                fields=['number', 'url'],
+                fields=['number', 'date'],
                 name='uniq_etgb'
             )
         ]
 
     def __str__(self):
-        return f'{self.date}'
+        return f"'{self.number}', '{self.date}', '{self.url}'"
